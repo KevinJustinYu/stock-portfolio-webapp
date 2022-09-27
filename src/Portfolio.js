@@ -2,24 +2,44 @@ import React,  { useState, useRef, useEffect } from 'react'
 import Stock from './Stock'
 import { DataGrid } from "@mui/x-data-grid";
 import axios from 'axios'
+import EditIcon from "@mui/icons-material/Edit"
+import Editable from 'react-editable-title'
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
-export default function Portfolio({ portfolioName, localStorageKey }) {
+export default function Portfolio({ localStorageKey }) {
 
   const [stockList, setStocks] = useState([])
   const stockInputRef = useRef()
 
+  const [portfolioName, setPortfolioName] = useState("Untitled Portfolio")
+
   // Load stocks
   useEffect(() => {
-    const storedStocks = JSON.parse(localStorage.getItem(localStorageKey))
+    const storedStocks = JSON.parse(localStorage.getItem(localStorageKey.path))
     if (storedStocks) setStocks(storedStocks)
   }, [])
 
   // Save stocks whenever stocks list changes
   useEffect(() => {
     if (stockList.length > 0) // Make sure we don't clear 
-      localStorage.setItem(localStorageKey, JSON.stringify(stockList))
+    localStorage.setItem(localStorageKey.path, JSON.stringify(stockList))
     console.log(stockList)
   }, [stockList])
+
+  // Load portfolio name upon startup
+  useEffect(() => {
+    const portName = localStorage.getItem(localStorageKey.path + "_name")
+    console.log("Loading portfolio name from " + localStorageKey.path + "_name" + ": " + portName)
+    if (portName) setPortfolioName(portName)
+  }, [])
+
+  // Save portfolio name whenever it changes
+  useEffect(() => {
+    localStorage.setItem(localStorageKey.path + "_name", portfolioName)
+    console.log("Saving new portfolio name: " + portfolioName)
+    console.log(localStorage.getItem(localStorageKey.path + "_name"))
+  }, [portfolioName])
 
   // Update stockList with new selections
   function handleSelection(selections) {
@@ -37,8 +57,8 @@ export default function Portfolio({ portfolioName, localStorageKey }) {
   function addStock(ticker, p, prevDayClosingPrice) {
     var currStocks = []
     setStocks(prevStocks => {
-      currStocks = [...prevStocks, {ticker:ticker, selected:false, price:p, id:ticker, prevDayClosingPrice:prevDayClosingPrice, companyName:''}]
-      return [...prevStocks, {ticker:ticker, selected:false, price:p, id:ticker, prevDayClosingPrice:prevDayClosingPrice, companyName:''}]
+      currStocks = [...prevStocks, {ticker:ticker, selected:false, price:p, id:ticker, key: ticker, prevDayClosingPrice:prevDayClosingPrice, companyName:''}]
+      return [...prevStocks, {ticker:ticker, selected:false, price:p, id:ticker, key: ticker, prevDayClosingPrice:prevDayClosingPrice, companyName:''}]
     })
     axios.get(`https://api.polygon.io/v3/reference/tickers/${ticker}?apiKey=O5xlHHsueMONXtvinQqNeBzTF2wUq5fI`) 
       .then(res => {
@@ -65,6 +85,10 @@ export default function Portfolio({ portfolioName, localStorageKey }) {
   function handleRemoveSelected() {
     const newStocks = stockList.filter(stock => stock.selected === false)
     setStocks(newStocks)
+  }
+
+  function updatePortfolioName(newName) {
+    setPortfolioName(newName)
   }
 
   function handleAddStock(e) {
@@ -96,10 +120,10 @@ export default function Portfolio({ portfolioName, localStorageKey }) {
 
   return (
     <>
-      <h2>{portfolioName}</h2>
-        <input ref={stockInputRef} type="text"/>
-        <button onClick={handleAddStock}>Add Stock</button>
-        <button onClick={handleRemoveSelected}>Remove Selected</button>
+      <Editable cb={updatePortfolioName} text={portfolioName} placeholder='Enter portfolio name' editButton controlButtons/>
+      <TextField inputRef={stockInputRef} type="text" placeholder='Input stock ticker' size='small'/>
+      <Button onClick={handleAddStock} variant="outlined">Add Stock</Button>
+      <Button onClick={handleRemoveSelected} variant="outlined">Remove Selected</Button>
       <DataGrid
       autoHeight
       density="compact"
@@ -128,6 +152,7 @@ export default function Portfolio({ portfolioName, localStorageKey }) {
           field: 'price',
           headerName: 'Last Trade Price',
           editable: false,
+          width:135,
         }
       ]}
     />
