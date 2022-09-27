@@ -14,7 +14,7 @@ This is a simple webapp for: https://gist.github.com/davidtsai/21b12d2c5a9cf1a7f
 
 ## To Do: 
 * Remove portfolio functionality
-* Fix stlying issues (get rid of hardcoded CSS params and make compatible with different browsers/sizes, etc)
+* Fix stlying issues (get rid of hardcoded CSS params and make compatible with different browsers/sizes, make portfolio names bigger, fix portfolio name textbox color, etc)
 * Sparkline vizualization for each stock
 * Clean up API call code in portfolio.js (currently a bit messy since there are subsequent async calls)
 * Remove uneccesary template files from project to improve readability/navigability
