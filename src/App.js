@@ -60,7 +60,7 @@ function App() {
         }
         )}
 
-        <Button variant="outlined" startIcon={<AddIcon />} onClick={addPortfolio}>
+        <Button variant="outlined" startIcon={<AddIcon />} onClick={addPortfolio} sx={{ml:65}}>
           Add Portfolio
         </Button>
       </div>
