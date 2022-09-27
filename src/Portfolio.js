@@ -130,9 +130,9 @@ export default function Portfolio({ localStorageKey }) {
 
   return (
     <>
-      <div style={{display: 'flex',  justifyContent:'left', alignItems:'center'}}>
+      <div style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
         <Editable cb={updatePortfolioName} text={portfolioName} placeholder='Enter portfolio name' editButton controlButtons/>
-        <TextField inputRef={stockInputRef} onKeyPress={handleKeyPress} type="text" placeholder='Input stock ticker' size='small' sx={{ml: 3}}/>
+        <TextField inputRef={stockInputRef} onKeyPress={handleKeyPress} type="text" placeholder='Input stock ticker' size='small' sx={{ml: 6}}/>
         <Button onClick={handleAddStock} variant="outlined" sx={{ml: 1}}>Add Stock</Button>
         <Button onClick={handleRemoveSelected} variant="outlined" sx={{ml: 1}}>Remove Selected</Button>
       </div>
@@ -143,7 +143,7 @@ export default function Portfolio({ localStorageKey }) {
         checkboxSelection
         onSelectionModelChange={handleSelection}
         // getRowClassName={(params) => `super-app-theme--${params.row.prevDayClosingPrice < params.row.price}`}
-        sx={{ mt: 0.5, mb: 4,
+        sx={{ mt: 0.5, mb: 4, ml: 22, width:800,
           '& .super-app-theme--true': {
             color: '#4E9F3D'
           },

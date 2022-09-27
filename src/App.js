@@ -49,19 +49,21 @@ function App() {
   return (
     
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Typography variant="h5" align="center" sx={{mb: 2}}>
-        Stock Portfolio Manager
-      </Typography>
-      {portfolioStorageKeys.map(
-      portfolioKey => {
-        return <Portfolio key={portfolioKey} localStorageKey={portfolioKey}/>
-      }
-      )}
+      <div style={{marginLeft:50, marginTop: 15}}>
+        <CssBaseline />
+        <Typography variant="h5" align="center" sx={{mb: 2}}>
+          Stock Portfolio Manager
+        </Typography>
+        {portfolioStorageKeys.map(
+        portfolioKey => {
+          return <Portfolio key={portfolioKey} localStorageKey={portfolioKey}/>
+        }
+        )}
 
-      <Button variant="outlined" startIcon={<AddIcon />} onClick={addPortfolio}>
-        Add Portfolio
-      </Button>
+        <Button variant="outlined" startIcon={<AddIcon />} onClick={addPortfolio}>
+          Add Portfolio
+        </Button>
+      </div>
     </ThemeProvider>
     
   )
