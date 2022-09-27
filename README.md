@@ -9,6 +9,8 @@ This is a simple webapp for: https://gist.github.com/davidtsai/21b12d2c5a9cf1a7f
 * Fetch and display last trade price for stock
 * Color indicator for determining if current price is higher or lower than previous day close price
 * Fetch and display full company name
+* Add stock using enter key rather than requiring button click
+* Datagrid display for each portfolio (allowing sorting/filtering/bulk selecting)
 
 ## To Do: 
 * Remove portfolio functionality
