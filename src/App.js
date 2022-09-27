@@ -51,7 +51,7 @@ function App() {
       </Typography>
       {portfolioStorageKeys.map(
       portfolioKey => {
-        return <Portfolio key={uuidv4()} localStorageKey={portfolioKey}/>
+        return <Portfolio key={portfolioKey} localStorageKey={portfolioKey}/>
       }
       )}
 
