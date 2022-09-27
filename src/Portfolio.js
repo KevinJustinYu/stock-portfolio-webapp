@@ -6,6 +6,7 @@ import EditIcon from "@mui/icons-material/Edit"
 import Editable from 'react-editable-title'
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import { Box } from '@mui/system';
 
 export default function Portfolio({ localStorageKey }) {
 
@@ -118,44 +119,54 @@ export default function Portfolio({ localStorageKey }) {
     stockInputRef.current.value = null // Clear the input text 
   }
 
+  const handleKeyPress = e => {
+      //it triggers by pressing the enter key
+    if (e.key === 'Enter') {
+      handleAddStock(e)
+    }
+  };
+
   return (
     <>
-      <Editable cb={updatePortfolioName} text={portfolioName} placeholder='Enter portfolio name' editButton controlButtons/>
-      <TextField inputRef={stockInputRef} type="text" placeholder='Input stock ticker' size='small'/>
-      <Button onClick={handleAddStock} variant="outlined">Add Stock</Button>
-      <Button onClick={handleRemoveSelected} variant="outlined">Remove Selected</Button>
-      <DataGrid
-      autoHeight
-      density="compact"
-      hideFooter
-      checkboxSelection
-      onSelectionModelChange={handleSelection}
-      rows={stockList}
-      columns={[ // column definition example
-        {
-          field: 'ticker',
-          headerName: 'Ticker',
-          editable: false,
-        },
-        {
-          field: 'companyName',
-          headerName: 'Company Name',
-          editable: false,
-          width:300,
-        },
-        {
-          field: 'prevDayClosingPrice',
-          headerName: 'Prev Close',
-          editable: false,
-        },
-        {
-          field: 'price',
-          headerName: 'Last Trade Price',
-          editable: false,
-          width:135,
-        }
-      ]}
-    />
-  </>
+      <div style={{display: 'flex',  justifyContent:'left', alignItems:'center'}}>
+        <Editable cb={updatePortfolioName} text={portfolioName} placeholder='Enter portfolio name' editButton controlButtons/>
+        <TextField inputRef={stockInputRef} onKeyPress={handleKeyPress} type="text" placeholder='Input stock ticker' size='small' sx={{ml: 3}}/>
+        <Button onClick={handleAddStock} variant="outlined" sx={{ml: 1}}>Add Stock</Button>
+        <Button onClick={handleRemoveSelected} variant="outlined" sx={{ml: 1}}>Remove Selected</Button>
+      </div>
+        <DataGrid
+        autoHeight
+        density="compact"
+        hideFooter
+        checkboxSelection
+        onSelectionModelChange={handleSelection}
+        sx={{ mt: 0.5, mb: 4}}
+        rows={stockList}
+        columns={[ // column definition example
+          {
+            field: 'ticker',
+            headerName: 'Ticker',
+            editable: false,
+          },
+          {
+            field: 'companyName',
+            headerName: 'Company Name',
+            editable: false,
+            width:300,
+          },
+          {
+            field: 'prevDayClosingPrice',
+            headerName: 'Prev Close',
+            editable: false,
+          },
+          {
+            field: 'price',
+            headerName: 'Last Trade Price',
+            editable: false,
+            width:135,
+          }
+        ]}
+      />
+    </>
   )
 }

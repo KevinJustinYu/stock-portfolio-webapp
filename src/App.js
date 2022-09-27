@@ -46,7 +46,7 @@ function App() {
     
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Typography variant="h5" align="center">
+      <Typography variant="h5" align="center" sx={{mb: 2}}>
         Portfolio Manager
       </Typography>
       {portfolioStorageKeys.map(
