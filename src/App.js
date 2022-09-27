@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Portfolio from './Portfolio';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
@@ -7,22 +7,21 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { v4 as uuidv4 } from 'uuid';
 
-const PORTFOLIO_KEY_LOCATION = "app130.portfolio_keys"
+// This is the location we will store localstorage keys for each portfolio
+const PORTFOLIO_KEY_LOCATION = "app.portfolio_keys"
+
+// Dark theme to reduce eye strain during development :), can build toggle later 
+const theme = createTheme({
+  palette: {
+    mode: 
+      "dark",
+  },
+})
+
 
 function App() {
+  // Get portfolio local storage keys if possible, otherwise default to empty
   const [portfolioStorageKeys, setPortfolioStorageKeys] = useState(JSON.parse(localStorage.getItem(PORTFOLIO_KEY_LOCATION)) || [])
-
-  // Load portfolio save keys upon startup
-  /*useEffect(() => {
-    const keys = JSON.parse(localStorage.getItem(PORTFOLIO_KEY_LOCATION))
-    console.log("Loading portfolio storage keys from " + PORTFOLIO_KEY_LOCATION + ": ")
-    console.log(keys)
-    if (keys) {
-      console.log("in if statemenet")
-      setPortfolioStorageKeys(keys)
-    }
-    console.log(portfolioStorageKeys)
-  }, [])*/
 
   // Save portfolio save keys whenever it changes
   useEffect(() => {
@@ -31,41 +30,32 @@ function App() {
     console.log(JSON.stringify(portfolioStorageKeys))
   }, [portfolioStorageKeys])
 
-  const theme = createTheme({
-    palette: {
-      mode: 
-        "dark",
-    },
-  })
-
+  // Add portfolio function on button click
   function addPortfolio() {
-    const uniqueID = uuidv4()
+    const uniqueID = uuidv4() // Generate unique ID to avoid key conflicts
     console.log("Adding new portfolio using key: " + uniqueID)
     setPortfolioStorageKeys(prevKeys => 
-      [...prevKeys, {key: uniqueID, path: 'app1.port_' + uniqueID}]
+      [...prevKeys, {key: uniqueID, path: 'app.port_' + uniqueID}]
     )
   }
 
   return (
-    
     <ThemeProvider theme={theme}>
-      <div style={{marginLeft:50, marginTop: 15}}>
+      <div style={{marginLeft:50, marginTop: 15,}}>
         <CssBaseline />
         <Typography variant="h5" align="center" sx={{mb: 2}}>
           Stock Portfolio Manager
-        </Typography>
+        </Typography> 
         {portfolioStorageKeys.map(
-        portfolioKey => {
-          return <Portfolio key={portfolioKey} localStorageKey={portfolioKey}/>
-        }
+          portfolioKey => {
+            return <Portfolio key={portfolioKey} localStorageKey={portfolioKey}/>
+          }
         )}
-
-        <Button variant="outlined" startIcon={<AddIcon />} onClick={addPortfolio} sx={{ml:65}}>
+        <Button variant="outlined" startIcon={<AddIcon />} onClick={addPortfolio} sx={{ml:80}}>
           Add Portfolio
         </Button>
       </div>
     </ThemeProvider>
-    
   )
 }
 

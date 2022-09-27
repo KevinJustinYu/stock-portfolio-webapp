@@ -1,40 +1,24 @@
 import React,  { useState, useRef, useEffect } from 'react'
-import Stock from './Stock'
 import { DataGrid } from "@mui/x-data-grid";
 import axios from 'axios'
-import EditIcon from "@mui/icons-material/Edit"
 import Editable from 'react-editable-title'
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import { Box } from '@mui/system';
-import { green } from '@mui/material/colors';
-import clsx from 'clsx';
 
 export default function Portfolio({ localStorageKey }) {
 
+  // Get stocks for this portfolio if exists, else default to empty portfolio
   const [stockList, setStocks] = useState(JSON.parse(localStorage.getItem(localStorageKey.path)) || [])
   const stockInputRef = useRef()
 
+  // Get the portfolio name from localstorage 
   const [portfolioName, setPortfolioName] = useState(localStorage.getItem(localStorageKey.path + "_name") || "Untitled Portfolio")
-
-  // Load stocks
-  /* useEffect(() => {
-    const storedStocks = JSON.parse(localStorage.getItem(localStorageKey.path))
-    if (storedStocks) setStocks(storedStocks)
-  }, [])*/
 
   // Save stocks whenever stocks list changes
   useEffect(() => {
     localStorage.setItem(localStorageKey.path, JSON.stringify(stockList))
     console.log(stockList)
   }, [stockList])
-
-  // Load portfolio name upon startup
-  /*useEffect(() => {
-    const portName = localStorage.getItem(localStorageKey.path + "_name")
-    console.log("Loading portfolio name from " + localStorageKey.path + "_name" + ": " + portName)
-    if (portName) setPortfolioName(portName)
-  }, [])*/
 
   // Save portfolio name whenever it changes
   useEffect(() => {
@@ -43,19 +27,24 @@ export default function Portfolio({ localStorageKey }) {
     console.log(localStorage.getItem(localStorageKey.path + "_name"))
   }, [portfolioName])
 
-  // Update stockList with new selections
+  // Updates stockList with new selections
   function handleSelection(selections) {
     console.log(selections)
     const newStocks = [...stockList]
-    const stock = newStocks.map(stock => {
-      if (selections.some(item => stock.ticker === item))
-        stock.selected = true 
-      else 
+    newStocks.map(stock => {
+      if (selections.some(item => stock.ticker === item)) {
+        stock.selected = true
+        return stock
+      }
+      else {
         stock.selected = false
+        return stock
+      }
     })
     setStocks(newStocks)
   }
 
+  // Secondary function that gets called upon adding stock
   function addStock(ticker, p, prevDayClosingPrice) {
     var currStocks = []
     setStocks(prevStocks => {
@@ -71,14 +60,17 @@ export default function Portfolio({ localStorageKey }) {
         console.log(err)
       })
   }
-
+  
+  /* Adds company name to the corresponding input stock
+   This is separate since there is a separate async API call */
   function addStockName(ticker, name, currStocks) {
     console.log(currStocks)
     currStocks.map(stock => {
-      if (stock.ticker == ticker)
+      if (stock.ticker === ticker) {
         stock.companyName = name
-      else
-        stock.companyName = stock.companyName
+        return stock
+      }
+      else return stock
     })
     setStocks(currStocks)
   }
@@ -93,6 +85,7 @@ export default function Portfolio({ localStorageKey }) {
     setPortfolioName(newName)
   }
 
+  // Function that gets called when add stock button is clicked
   function handleAddStock(e) {
     var ticker = stockInputRef.current.value
     if (ticker === '') return 
@@ -106,6 +99,7 @@ export default function Portfolio({ localStorageKey }) {
       return
     }
     
+    // Initiate async API call
     axios.get(`https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/${ticker}?apiKey=O5xlHHsueMONXtvinQqNeBzTF2wUq5fI`)
         .then(res => {
             //console.log(res.data)
@@ -120,13 +114,14 @@ export default function Portfolio({ localStorageKey }) {
     stockInputRef.current.value = null // Clear the input text 
   }
 
+  /* This function is called when in stock input field, and allows user to add stock
+  by pressing the enter key */
   const handleKeyPress = e => {
       //it triggers by pressing the enter key
     if (e.key === 'Enter') {
       handleAddStock(e)
     }
   };
-
 
   return (
     <>
@@ -143,7 +138,7 @@ export default function Portfolio({ localStorageKey }) {
         checkboxSelection
         onSelectionModelChange={handleSelection}
         // getRowClassName={(params) => `super-app-theme--${params.row.prevDayClosingPrice < params.row.price}`}
-        sx={{ mt: 0.5, mb: 4, ml: 22, width:800,
+        sx={{ mt: 0.5, mb: 4, ml: 42, width:800,
           '& .super-app-theme--true': {
             color: '#4E9F3D'
           },
