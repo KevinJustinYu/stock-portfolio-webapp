@@ -7,33 +7,34 @@ import Editable from 'react-editable-title'
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { Box } from '@mui/system';
+import { green } from '@mui/material/colors';
+import clsx from 'clsx';
 
 export default function Portfolio({ localStorageKey }) {
 
-  const [stockList, setStocks] = useState([])
+  const [stockList, setStocks] = useState(JSON.parse(localStorage.getItem(localStorageKey.path)) || [])
   const stockInputRef = useRef()
 
-  const [portfolioName, setPortfolioName] = useState("Untitled Portfolio")
+  const [portfolioName, setPortfolioName] = useState(localStorage.getItem(localStorageKey.path + "_name") || "Untitled Portfolio")
 
   // Load stocks
-  useEffect(() => {
+  /* useEffect(() => {
     const storedStocks = JSON.parse(localStorage.getItem(localStorageKey.path))
     if (storedStocks) setStocks(storedStocks)
-  }, [])
+  }, [])*/
 
   // Save stocks whenever stocks list changes
   useEffect(() => {
-    if (stockList.length > 0) // Make sure we don't clear 
     localStorage.setItem(localStorageKey.path, JSON.stringify(stockList))
     console.log(stockList)
   }, [stockList])
 
   // Load portfolio name upon startup
-  useEffect(() => {
+  /*useEffect(() => {
     const portName = localStorage.getItem(localStorageKey.path + "_name")
     console.log("Loading portfolio name from " + localStorageKey.path + "_name" + ": " + portName)
     if (portName) setPortfolioName(portName)
-  }, [])
+  }, [])*/
 
   // Save portfolio name whenever it changes
   useEffect(() => {
@@ -126,6 +127,7 @@ export default function Portfolio({ localStorageKey }) {
     }
   };
 
+
   return (
     <>
       <div style={{display: 'flex',  justifyContent:'left', alignItems:'center'}}>
@@ -140,7 +142,15 @@ export default function Portfolio({ localStorageKey }) {
         hideFooter
         checkboxSelection
         onSelectionModelChange={handleSelection}
-        sx={{ mt: 0.5, mb: 4}}
+        // getRowClassName={(params) => `super-app-theme--${params.row.prevDayClosingPrice < params.row.price}`}
+        sx={{ mt: 0.5, mb: 4,
+          '& .super-app-theme--true': {
+            color: '#4E9F3D'
+          },
+          '& .super-app-theme--false': {
+            color: '#E94560'
+          }
+        }}
         rows={stockList}
         columns={[ // column definition example
           {
@@ -156,14 +166,17 @@ export default function Portfolio({ localStorageKey }) {
           },
           {
             field: 'prevDayClosingPrice',
-            headerName: 'Prev Close',
+            headerName: 'Prev Day Close Price',
             editable: false,
+            width: 175,
           },
           {
             field: 'price',
             headerName: 'Last Trade Price',
             editable: false,
             width:135,
+            cellClassName: (params) =>
+            `super-app-theme--${params.row.prevDayClosingPrice < params.row.price}`,
           }
         ]}
       />

@@ -7,18 +7,22 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { v4 as uuidv4 } from 'uuid';
 
-const PORTFOLIO_KEY_LOCATION = "app11.portfolio_keys"
+const PORTFOLIO_KEY_LOCATION = "app130.portfolio_keys"
 
 function App() {
-  const [portfolioStorageKeys, setPortfolioStorageKeys] = useState([])
+  const [portfolioStorageKeys, setPortfolioStorageKeys] = useState(JSON.parse(localStorage.getItem(PORTFOLIO_KEY_LOCATION)) || [])
 
   // Load portfolio save keys upon startup
-  useEffect(() => {
+  /*useEffect(() => {
     const keys = JSON.parse(localStorage.getItem(PORTFOLIO_KEY_LOCATION))
     console.log("Loading portfolio storage keys from " + PORTFOLIO_KEY_LOCATION + ": ")
     console.log(keys)
-    setPortfolioStorageKeys(keys)
-  }, [])
+    if (keys) {
+      console.log("in if statemenet")
+      setPortfolioStorageKeys(keys)
+    }
+    console.log(portfolioStorageKeys)
+  }, [])*/
 
   // Save portfolio save keys whenever it changes
   useEffect(() => {
@@ -38,7 +42,7 @@ function App() {
     const uniqueID = uuidv4()
     console.log("Adding new portfolio using key: " + uniqueID)
     setPortfolioStorageKeys(prevKeys => 
-      [...prevKeys, {key: uniqueID, path: 'app.port_' + uniqueID}]
+      [...prevKeys, {key: uniqueID, path: 'app1.port_' + uniqueID}]
     )
   }
 
@@ -47,7 +51,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Typography variant="h5" align="center" sx={{mb: 2}}>
-        Portfolio Manager
+        Stock Portfolio Manager
       </Typography>
       {portfolioStorageKeys.map(
       portfolioKey => {
