@@ -39,6 +39,15 @@ function App() {
     )
   }
 
+  // Delete portfolio
+  function deletePortfolio(portfolioID){
+    console.log("Deleting portfolio with id: " + portfolioID)
+    const newPortfolios = portfolioStorageKeys.filter(portfolioKey => portfolioKey.key !== portfolioID)
+    console.log("New Portfolios (after deletion): ")
+    console.log(JSON.stringify(newPortfolios))
+    setPortfolioStorageKeys(newPortfolios)
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <div style={{marginLeft:50, marginTop: 15,}}>
@@ -48,7 +57,7 @@ function App() {
         </Typography> 
         {portfolioStorageKeys.map(
           portfolioKey => {
-            return <Portfolio key={portfolioKey} localStorageKey={portfolioKey}/>
+            return <Portfolio key={portfolioKey} localStorageKey={portfolioKey} deletePortfolio={deletePortfolio}/>
           }
         )}
         <Button variant="outlined" startIcon={<AddIcon />} onClick={addPortfolio} sx={{ml:80}}>

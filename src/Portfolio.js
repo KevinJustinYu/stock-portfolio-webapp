@@ -4,12 +4,23 @@ import axios from 'axios'
 import Editable from 'react-editable-title'
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
-export default function Portfolio({ localStorageKey }) {
+const INVALID_TICKER_MSG = "Please check your ticker input and try again."
+const EXISTING_TICKER_MSG = "This stock is already in your porfolio."
+
+export default function Portfolio({ localStorageKey, deletePortfolio }) {
 
   // Get stocks for this portfolio if exists, else default to empty portfolio
   const [stockList, setStocks] = useState(JSON.parse(localStorage.getItem(localStorageKey.path)) || [])
   const stockInputRef = useRef()
+
+  const [inputStockIsValid, setInputStockIsValid] = useState(true)
+  const [invalidInputText, setInvalidInputText] = useState(INVALID_TICKER_MSG)
 
   // Get the portfolio name from localstorage 
   const [portfolioName, setPortfolioName] = useState(localStorage.getItem(localStorageKey.path + "_name") || "Untitled Portfolio")
@@ -44,6 +55,16 @@ export default function Portfolio({ localStorageKey }) {
     setStocks(newStocks)
   }
 
+
+  // Function to delete the portfolio
+  function handleDeletePortfolio() {
+    deletePortfolio(localStorageKey.key)
+  }
+
+  const handleClose = () => {
+    setInputStockIsValid(true);
+  };
+
   // Secondary function that gets called upon adding stock
   function addStock(ticker, p, prevDayClosingPrice) {
     var currStocks = []
@@ -55,9 +76,12 @@ export default function Portfolio({ localStorageKey }) {
       .then(res => {
         console.log(res.data.results.name)
         addStockName(ticker, res.data.results.name, currStocks)
+        setInputStockIsValid(true)
       })
       .catch(err => {
         console.log(err)
+        setInputStockIsValid(false)
+        setInvalidInputText(INVALID_TICKER_MSG)
       })
   }
   
@@ -95,7 +119,9 @@ export default function Portfolio({ localStorageKey }) {
         stockObj => stockObj.ticker === ticker
       ).length > 0
     ) {
-      console.log("This stock has already been added!")
+      console.log(EXISTING_TICKER_MSG)
+      setInputStockIsValid(false)
+      setInvalidInputText(EXISTING_TICKER_MSG)
       return
     }
     
@@ -109,6 +135,9 @@ export default function Portfolio({ localStorageKey }) {
         })
         .catch(err => {
             console.log(err)
+            setInputStockIsValid(false)
+            setInvalidInputText(INVALID_TICKER_MSG)
+            console.log(inputStockIsValid)
         })
 
     stockInputRef.current.value = null // Clear the input text 
@@ -129,7 +158,28 @@ export default function Portfolio({ localStorageKey }) {
         <Editable cb={updatePortfolioName} text={portfolioName} placeholder='Enter portfolio name' editButton controlButtons/>
         <TextField inputRef={stockInputRef} onKeyPress={handleKeyPress} type="text" placeholder='Input stock ticker' size='small' sx={{ml: 6}}/>
         <Button onClick={handleAddStock} variant="outlined" sx={{ml: 1}}>Add Stock</Button>
-        <Button onClick={handleRemoveSelected} variant="outlined" sx={{ml: 1}}>Remove Selected</Button>
+        <Button onClick={handleRemoveSelected} variant="outlined" sx={{ml: 1}}>Remove Selected Stocks</Button>
+        <Button onClick={handleDeletePortfolio} variant='outlined'sx={{ml: 1}}>Delete Portfolio</Button>
+        <Dialog
+          open={!inputStockIsValid}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Invalid stock ticker"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {invalidInputText}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} autoFocus>
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
         <DataGrid
         autoHeight
