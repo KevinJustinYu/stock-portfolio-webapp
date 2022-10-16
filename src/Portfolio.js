@@ -9,6 +9,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import FetchTickerData from './FetchTickerData';
 
 const INVALID_TICKER_MSG = "Please check your ticker input and try again."
 const EXISTING_TICKER_MSG = "This stock is already in your porfolio."
@@ -40,6 +41,7 @@ export default function Portfolio({ localStorageKey, deletePortfolio }) {
 
   // Updates stockList with new selections
   function handleSelection(selections) {
+    console.log("In handle selections. Selections: ")
     console.log(selections)
     const newStocks = [...stockList]
     newStocks.map(stock => {
@@ -52,7 +54,10 @@ export default function Portfolio({ localStorageKey, deletePortfolio }) {
         return stock
       }
     })
+    console.log("In handleSelection. New stockList:")
+    console.log(JSON.stringify(newStocks))
     setStocks(newStocks)
+    console.log(JSON.stringify(stockList))
   }
 
 
@@ -65,38 +70,12 @@ export default function Portfolio({ localStorageKey, deletePortfolio }) {
     setInputStockIsValid(true);
   };
 
-  // Secondary function that gets called upon adding stock
-  function addStock(ticker, p, prevDayClosingPrice) {
-    var currStocks = []
+  // Adds stock to list with data
+  function addStock(ticker, p, prevClosePrice, name) {
+    // Set stock list (without price data)
     setStocks(prevStocks => {
-      currStocks = [...prevStocks, {ticker:ticker, selected:false, price:p, id:ticker, key: ticker, prevDayClosingPrice:prevDayClosingPrice, companyName:''}]
-      return [...prevStocks, {ticker:ticker, selected:false, price:p, id:ticker, key: ticker, prevDayClosingPrice:prevDayClosingPrice, companyName:''}]
+      return [...prevStocks, {ticker:ticker, selected:false, id:ticker, key: ticker, price:p, prevClosePrice:prevClosePrice, companyName:name}]
     })
-    axios.get(`https://api.polygon.io/v3/reference/tickers/${ticker}?apiKey=O5xlHHsueMONXtvinQqNeBzTF2wUq5fI`) 
-      .then(res => {
-        console.log(res.data.results.name)
-        addStockName(ticker, res.data.results.name, currStocks)
-        setInputStockIsValid(true)
-      })
-      .catch(err => {
-        console.log(err)
-        setInputStockIsValid(false)
-        setInvalidInputText(INVALID_TICKER_MSG)
-      })
-  }
-  
-  /* Adds company name to the corresponding input stock
-   This is separate since there is a separate async API call */
-  function addStockName(ticker, name, currStocks) {
-    console.log(currStocks)
-    currStocks.map(stock => {
-      if (stock.ticker === ticker) {
-        stock.companyName = name
-        return stock
-      }
-      else return stock
-    })
-    setStocks(currStocks)
   }
 
   // Remove stocks that are selected
@@ -107,6 +86,20 @@ export default function Portfolio({ localStorageKey, deletePortfolio }) {
 
   function updatePortfolioName(newName) {
     setPortfolioName(newName)
+  }
+
+  // Fetches stock data using API calls and adds single stock
+  async function fetchAndAddStock(ticker) {
+    try{
+      const res = await FetchTickerData(ticker)
+      addStock(ticker, res.lastPrice, res.prevClosePrice, res.companyName)
+      setInputStockIsValid(true)
+    } catch (err) {
+      console.log(err)
+      setInputStockIsValid(false)
+      setInvalidInputText(INVALID_TICKER_MSG)
+      console.log(inputStockIsValid)
+    }
   }
 
   // Function that gets called when add stock button is clicked
@@ -124,21 +117,8 @@ export default function Portfolio({ localStorageKey, deletePortfolio }) {
       setInvalidInputText(EXISTING_TICKER_MSG)
       return
     }
-    
     // Initiate async API call
-    axios.get(`https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/${ticker}?apiKey=O5xlHHsueMONXtvinQqNeBzTF2wUq5fI`)
-        .then(res => {
-            //console.log(res.data)
-            const lastPrice = res.data.ticker.lastTrade.p
-            const prevDayClosingPrice = res.data.ticker.prevDay.c
-            addStock(ticker, lastPrice, prevDayClosingPrice)
-        })
-        .catch(err => {
-            console.log(err)
-            setInputStockIsValid(false)
-            setInvalidInputText(INVALID_TICKER_MSG)
-            console.log(inputStockIsValid)
-        })
+    fetchAndAddStock(ticker)
 
     stockInputRef.current.value = null // Clear the input text 
   }
@@ -210,8 +190,8 @@ export default function Portfolio({ localStorageKey, deletePortfolio }) {
             width:300,
           },
           {
-            field: 'prevDayClosingPrice',
-            headerName: 'Prev Day Close Price',
+            field: 'prevClosePrice',
+            headerName: 'Prev Close Price',
             editable: false,
             width: 175,
           },
